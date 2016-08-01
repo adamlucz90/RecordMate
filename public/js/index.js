@@ -3,7 +3,8 @@ var model = {
     albumInfo: [],
     videoInfo: [],
     covers: [],
-    wishInfo: []
+    wishInfo: [],
+    collectionInfo: []
 }
 
 /**
@@ -174,12 +175,14 @@ function _cb_findItemsByKeywords(root) {
  */
 function renderAlbum() {
     
-    //hide search form
+    //hide all sections
     $("#search").attr("hidden", true);
     $("#wishlist").attr("hidden", true);
+    $("#collection").attr("hidden", true);
     
     //clear everything
     $("#info").empty();
+    $("#collectButton").empty();
     $("#addButton").empty();
     $("#cover-img").empty();
     
@@ -203,8 +206,8 @@ function renderAlbum() {
                     
     $("#cover-img").append(cover);
     
-    //create button that when clicked triggers the wishlistAdd function,
-    //thereby adding the current album to the user's wishlist
+    /*create button that when clicked triggers the wishlistAdd function,
+    thereby adding the current album to the user's wishlist */
     var wishButton = $("<button></button>")
                         .attr("class", "btn btn-success")
                         .attr("id", "wishButton")
@@ -215,7 +218,20 @@ function renderAlbum() {
                         });
     
     $("#addButton").append(wishButton);
-        
+
+    /*create button that when clicked triggers the collectionAdd function,
+    thereby adding the current album to the user's collection */
+    var collectionButton = $("<button></button>")
+                        .attr("class", "btn btn-success")
+                        .attr("id", "addCollectButton")
+                        .attr("type", "button")
+                        .text("Add to Collection")
+                        .click(function(){
+                            collectionAdd();
+                        });
+    
+    $("#collectButton").append(collectionButton);
+
     //checks for available album info and renders accordingly
     if (model.albumInfo.album.wiki)
     {
@@ -273,6 +289,9 @@ function renderAlbum() {
     $("#results").attr("hidden", false);
 }
 
+/*Takes album info and then passes it via an ajax request
+* into the php controller that adds it to the database wishlist
+*/
 function wishlistAdd(){
     //diable the add to wishlist button
     $("#wishButton").prop("disabled", true);
@@ -307,6 +326,9 @@ function wishlistAdd(){
     });
 }
 
+/*When called makes an ajax request to the database to pull all
+* of a user's wishlist items and pass the info into wishlistFill
+*/
 function wishlist(){
     
     //hide search form
@@ -328,8 +350,11 @@ function wishlist(){
     });
 }
 
+/*Searches the database for a queried user and then
+* if the user exists, returns their wishlist items
+*/
 function wishSearch(user){
-    //ajax call to the wishlistDelete php controller
+    //ajax call to the wishlistSearch php controller
     //passes in artist and album variable to ensure they are deleted from the user's wishlist
     $.ajax({
         url: "https://ide50-adamlucz90.cs50.io/php/wishlistSearch.php",
@@ -369,6 +394,7 @@ function wishSearch(user){
         });
 }
 
+/*Renders the wishlist*/
 function wishlistFill(user){
     //empties anything previously in the wishlist
     $("#wishlist ul").empty();
@@ -442,6 +468,16 @@ function wishlistFill(user){
                 wishRemove(obj.artist, obj.album);
             });
             
+        //create button that allows the user to remove item from their wishlist   
+        var collectButton = $("<button></button>")
+            .text("Add to Collection")
+            .attr("class", "btn btn-success")
+            .attr("id", "collectAddButton")
+            .click(function(){
+                collectionAdd(obj.artist, obj.album, obj.url);
+                
+            });
+            
         //panel heading contains the artist and album title
         var panelHeading = $("<div></div>")
           .attr("class", "panel-heading")
@@ -478,7 +514,7 @@ function wishlistFill(user){
                 //panel body contains the cover and button
                 var panelBody = $("<div></div>")
                   .attr("class", "panel-body")
-                  .append([cover, button]);  
+                  .append([cover, button, collectButton]);  
                     
                 //list item is a panel, contains the panel heading and body
                 var item = $("<li></li>")
@@ -498,12 +534,16 @@ function wishlistFill(user){
         //ensure the search-from section and results section are hidden
         $("#search").attr("hidden", true);
         $("#results").attr("hidden", true);
+        $("#collection").attr("hidden", true);
         
         //reveal the wishlist section
         $("#wishlist").attr("hidden", false);
     }
 }
 
+/*Makes an ajax call to delete the specified album from
+* a user's wishlist and then rerenders the wishlist
+*/
 function wishRemove(artist, album){
     //ajax call to the wishlistDelete php controller
     //passes in artist and album variable to ensure they are deleted from the user's wishlist
@@ -521,6 +561,189 @@ function wishRemove(artist, album){
         });
 }
 
+
+/*When called makes an ajax request to the database to pull all
+* of a user's collection items and pass the info into collectionFill
+*/
+function collection(){
+    
+    //hide search form
+    $("#search").attr("hidden", true);
+    
+    //makes ajax call to collection php controller to access a users collection
+    $.ajax({
+    url: "https://ide50-adamlucz90.cs50.io/php/collection.php",
+    success: function(response) {
+    //parse the JSON object returned from php controller 
+    var collection = JSON.parse(response);
+    
+    //inject the collection information into the model to be used in collectionFill
+    model.collectionInfo = collection;
+    
+    //call the wishlistFill function
+    collectionFill();
+    }
+    });
+}
+
+/*Takes album info and then passes it via an ajax request
+* into the php controller that adds it to the database collection
+*/
+function collectionAdd(artist, album, img){
+    //diable the add to collection button
+    $("#addCollectButton").prop("disabled", true);
+    
+    if(artist){
+    //set the variables that are to be added to the collection from input
+    var artistName = artist;
+    var albumName = album;
+    var imgUrl = img;
+    }
+    else{
+    //set the variables that are to be added to the wishlist 
+    var artistName = model.albumInfo.album.artist;
+    var albumName = model.albumInfo.album.name;
+    var imgUrl = model.covers[2];
+    }
+
+    //makes an ajax call to the wishlistAdd php controller, passing along variables to be added to database
+    $.ajax({
+    url: "https://ide50-adamlucz90.cs50.io/php/collectionAdd.php",
+    data: {
+        w1: artistName,
+        w2: albumName,
+        w3: imgUrl
+    },
+    success: function(response) {
+
+        //parse the JSON information provided from php controller
+        var info = JSON.parse(response);
+        
+        //if the JSON comes back empty that means the album is 
+        //already in the users wishlist
+        if(info !== null){
+            //inform user album is already in the wishlist
+            $("#addCollectButton")
+                .prop("disabled", true)
+                .text("Already In Collection!");
+        }
+    }
+    });
+}
+
+/*Makes an ajax call to delete the specified album from
+* a user's collection and then rerenders the collection
+*/
+function collectionRemove(artist, album){
+    //ajax call to the wishlistDelete php controller
+    //passes in artist and album variable to ensure they are deleted from the user's wishlist
+    $.ajax({
+        url: "https://ide50-adamlucz90.cs50.io/php/collectionDelete.php",
+        data: {
+            w1: artist,
+            w2: album
+        },
+        
+        success: function(response) {
+            //reload the wishlist
+            collection();
+        }
+        });
+}
+
+/*Renders the collection*/
+function collectionFill(){
+    //empties anything previously in the collection list
+    $("#collection ul").empty();
+    
+    //ensures the empty collection message is hidden
+    $("#collectionEmpty").attr("hidden", true);
+    
+    //if there is nothing in a users collection display empty collection message
+    //if not then fill the wishlist
+    if(model.collectionInfo === null){
+
+        //reveals empty collection message
+        $("#collectionEmpty").attr("hidden", false);
+                    
+        //ensure collectionGreet is visible
+        $("#collectionGreet").attr("hidden", false);
+    
+        //hides the search form section, results section, and wishlist section
+        $("#search").attr("hidden", true);
+        $("#results").attr("hidden", true);
+        $("#wishlist").attr("hidden", true);
+        
+        //reveals collection page
+        $("#collection").attr("hidden", false);
+    }
+    else
+    {
+        //iterate through each item in the user's collection
+        //and inject info into a bootstrap panel
+        model.collectionInfo.forEach(function(obj){
+        
+        //create cover image and make the image a link to it's own info page
+        var cover = $("<img></img>")
+            .attr("src", obj.url)
+            .attr("class", "img-responsive")
+            .attr("href", "#")
+            .click(function(){
+                albumSearch(obj.artist, obj.album, youtubeSearch);
+            });
+        
+        //Get artist name for heading  
+        var artist = $("<h4></h4>")
+            .text(obj.artist);
+       
+       //Get album name for heading    
+        var album = $("<h4></h4>")
+            .text(obj.album);
+        
+        //create button that allows the user to remove item from their collection   
+        var button = $("<button></button>")
+            .text("REMOVE")
+            .attr("class", "btn btn-success")
+            .click(function(){
+                collectionRemove(obj.artist, obj.album);
+            });
+            
+        //panel heading contains the artist and album title
+        var panelHeading = $("<div></div>")
+          .attr("class", "panel-heading")
+          .append([artist, album]);
+        
+
+        //panel body contains the cover and button
+        var panelBody = $("<div></div>")
+                .attr("class", "panel-body")
+                .append([cover, button]);  
+                    
+        //list item is a panel, contains the panel heading and body
+        var item = $("<li></li>")
+                  .append( [panelHeading, panelBody] )
+                  .attr("class", "panel panel-default");
+                
+            //append the panel to the collection
+                $("#collection ul").append(item);
+                
+                    
+            //ensure wishGreet is visible
+                $("#collectionGreet").attr("hidden", false);
+            
+    });
+        //ensure the search-from section and results section are hidden
+        $("#search").attr("hidden", true);
+        $("#results").attr("hidden", true);
+        $("#wishlist").attr("hidden", true);
+        
+        $("#collection").attr("hidden", false);
+    }
+}
+
+/*Passes login info to the login php controller
+* if all is good the user is logged in and redirected to homepage
+*/
 function login(){
     //serialize the form data passed into the login form
     var data = $("#login").serialize();
@@ -550,6 +773,9 @@ function login(){
         });
 }
 
+/*Passes registration information to register php controller
+* if all is good the new user is registered, logged in, and redirected to the homepage
+*/
 function register(){
     //serialize the form data passed into the register form
     var data = $("#register").serialize();
@@ -618,7 +844,13 @@ $(document).ready(function() {
         evt.preventDefault();
         wishlist();
         });
-    
+
+    //when the user clicks the Collection button on the navbar, trigger the collection function thereby rendering the collection    
+    $("#collectionClick").on("click", function(evt){
+        evt.preventDefault();
+        collection();
+        });
+        
         //validates the registration form
         //if valid the register function is fired
         $("#register").validate({

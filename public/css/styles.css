@@ -106,9 +106,28 @@ footer {
   text-align:center;
 }
 
+#collection h1 {
+  font-family: Century Gothic;
+  font-weight: bold;
+  color: #c2c2a3;
+  text-align:center;
+}
+
 #wishlist li {
 	padding: 0px;
 	margin: 0px 1% 1% 0px;
+	width: 200px;
+	text-align: center;
+	font-family: Century Gothic;
+	font-weight: bold;
+  color: #c2c2a3;
+  background-color: #c2c2a3;
+}
+
+
+#collection li {
+	padding: 0px;
+	margin: 0px 5px 0px 5px;
 	width: 200px;
 	text-align: center;
 	font-family: Century Gothic;
@@ -122,13 +141,13 @@ footer {
   background-color: #c2c2a3;
 }
 
-#wishlist li button {
+.panel-body button {
 	width: 100%;
 	margin-top: 10px;
 	font-family: Century Gothic;
 }
 
-#wishlist img{
+.panel-body img{
   width: 100%;
   padding: 0px 0px 0px 0px;
 }
@@ -177,4 +196,8 @@ footer {
     font-family: Brush Script MT;
     color: #ff3333;
     text-decoration: none;
+}
+
+#cover button{
+  margin: 2px 0px 0px 90px;
 }

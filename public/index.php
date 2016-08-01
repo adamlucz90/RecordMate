@@ -6,7 +6,7 @@
         <!-- get jquery validation plugin -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js"></script>
         
-        <!-- get bootstarp-->
+        <!-- get bootstrap-->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
         
@@ -44,6 +44,9 @@
         ?>
         <li class="nav-item">
           <a class="nav-link" href="#" id="wishClick">Wishlist</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="collectionClick">My Collection</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/php/logout.php" id="logout">Logout</a>
@@ -122,8 +125,8 @@
                 //if user is logged in then display "add to wishlist" button
                 if($_COOKIE['id']):
                 ?>
-                    <div class="col-xs-2"></div>
                     <div id="addButton" class="col-xs-8"></div>
+                    <div id="collectButton" class="col-xs-8"></div>
                 <?php
                 else:
                 ?>
@@ -195,6 +198,13 @@
         <h1 id="wishGreet" hidden="false"><?= htmlspecialchars($_COOKIE["username"])?>'s Wishlist</h1>
         <h1 hidden="true" id="wishEmpty">You have nothing in your wishlist!</h1>
             <ul id="wishItems" class="list-inline"></ul>
+    </section>
+
+    <!--Collection Section-->
+    <section id="collection" hidden="true" class="col-xs-12">
+        <h1 id="collectionGreet" hidden="false"><?= htmlspecialchars($_COOKIE["username"])?>'s Collection</h1>
+        <h1 hidden="true" id="collectionEmpty">You have nothing in your collection!</h1>
+            <ul id="collectionItems" class="list-inline"></ul>
     </section>
     
     </body>
