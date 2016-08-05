@@ -206,6 +206,20 @@ function renderAlbum() {
                     
     $("#cover-img").append(cover);
     
+
+    trackList = $("<ul></ul>")
+                    .attr("style", "list-style-type:none");
+    
+    var tracks = model.albumInfo.album.tracks.track.map(function(obj){
+        
+        trackList.append("<li>" + obj.name + "</li>");
+    });
+
+    trackTitle = $("<h3></h3>")
+                    .text("Tracklist");
+    
+
+                    
     /*create button that when clicked triggers the wishlistAdd function,
     thereby adding the current album to the user's wishlist */
     var wishButton = $("<button></button>")
@@ -253,7 +267,7 @@ function renderAlbum() {
                     .text(tags);
         
     //add new info to html    
-    $("#info").append([artist, title, info, tag]);
+    $("#info").append([artist, title, info, trackTitle, trackList, tag]);
         
 
     /**Fill youtube result section**/
@@ -432,6 +446,7 @@ function wishlistFill(user){
         //hides the search form section and results section
         $("#search").attr("hidden", true);
         $("#results").attr("hidden", true);
+        $("#collection").attr("hidden", true);
         
         //reveals wishlist page
         $("#wishlist")
@@ -475,7 +490,7 @@ function wishlistFill(user){
             .attr("id", "collectAddButton")
             .click(function(){
                 collectionAdd(obj.artist, obj.album, obj.url);
-                
+                wishRemove(obj.artist, obj.album);
             });
             
         //panel heading contains the artist and album title
@@ -844,6 +859,23 @@ $(document).ready(function() {
         evt.preventDefault();
         wishlist();
         });
+    
+    //when the user clicks on the search button on the navbar, navigate them back to the search page    
+    $("#navSearch").on("click", function(evt){
+        evt.preventDefault();
+        
+        //ensure the search forms are empty
+        $("#search .form-control").val("");
+        
+        //hide all other sections
+        $("#results").attr("hidden", true);
+        $("#wishlist").attr("hidden", true);
+        $("#collection").attr("hidden", true);
+        $("#log").attr("hidden", true);
+        
+        //reveal search section
+        $("#search").attr("hidden", false);
+    })
 
     //when the user clicks the Collection button on the navbar, trigger the collection function thereby rendering the collection    
     $("#collectionClick").on("click", function(evt){

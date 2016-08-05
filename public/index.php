@@ -28,7 +28,7 @@
       <a class="navbar-brand" href="https://ide50-adamlucz90.cs50.io/">RecordMate</a>
       <ul class="nav navbar-nav">
         <li class="nav-item active">
-          <a class="nav-link" href="https://ide50-adamlucz90.cs50.io/">Search<span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="#" id="navSearch">Search<span class="sr-only">(current)</span></a>
         </li>
         <?php
         //check if user is logged in
